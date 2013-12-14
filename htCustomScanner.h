@@ -35,10 +35,12 @@ public:
 				size_t lines_in_buffer = 10);
 	~htCustomScanner();
 	
-	htLine getNextCell();
+	htLine getNextLine();
 	
 	bool end();
 };
+
+typedef boost::shared_ptr<htCustomScanner> htCustomScannerPtr;
 
 #endif	/* HTCUSTOMSCANNER_H */
 

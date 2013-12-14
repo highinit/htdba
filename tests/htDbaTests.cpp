@@ -82,7 +82,7 @@ void htDbaTests::testCustomScanner()
 	int i = 0;
 	while (!cs.end())
 	{
-		htLine cells = cs.getNextCell();
+		htLine cells = cs.getNextLine();
 		
 		/*
 		

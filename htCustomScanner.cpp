@@ -99,7 +99,7 @@ void htCustomScanner::parseMore()
 	}
 }
 
-htLine htCustomScanner::getNextCell()
+htLine htCustomScanner::getNextLine()
 {
 	if (line_buffer.size()!=0)
 	{

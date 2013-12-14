@@ -32,5 +32,7 @@ public:
 	bool end();
 };
 
+typedef boost::shared_ptr<htKeyScanner> htKeyScannerPtr;
+
 #endif	/* HTKEYSCANNER_H */
 
