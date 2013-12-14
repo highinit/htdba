@@ -47,9 +47,8 @@ std::string htDbaTests::getCvalue(int row)
 	return std::string(bf);
 }
 
-void htDbaTests::testCustomScanner()
+void htDbaTests::fill(int nrows)
 {
-	const int nrows = 100000;
 	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
 	
 	htCollWriterConc writer(m_client, m_ns, m_table);
@@ -59,7 +58,18 @@ void htDbaTests::testCustomScanner()
 		writer.insertSync(KeyValue(getRow(i), getAvalue(i)), "a");
 		writer.insertSync(KeyValue(getRow(i), getBvalue(i)), "b");
 		writer.insertSync(KeyValue(getRow(i), getCvalue(i)), "c");
-	} 
+	}
+	
+	m_client->close_namespace(ns);
+}
+
+void htDbaTests::testCustomScanner()
+{
+	clearTable();
+	const int nrows = 1000;
+	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
+	
+	fill(nrows);
 	
 	sleep(15);
 	
@@ -114,6 +124,20 @@ void htDbaTests::testCustomScanner()
 	}
 	
 	m_client->close_namespace(ns);
+}
+
+void htDbaTests::testKeyScanner()
+{
+	clearTable();
+	fill(10);
+	sleep(2);
+	
+	htKeyScanner s(m_client, m_ns, m_table);
+	while (!s.end())
+	{
+		std::cout << "key:" << s.getNextKey() << std::endl;
+	}
+	
 }
 
 void htDbaTests::run()

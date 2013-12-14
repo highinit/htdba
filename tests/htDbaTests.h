@@ -13,6 +13,7 @@
 #include "../htCollWriter.h"
 #include "../htCustomScanner.h"
 #include "../htQuerier.h"
+#include "../htKeyScanner.h"
 
 class htDbaTests
 {
@@ -30,7 +31,10 @@ public:
 	htDbaTests(std::string ns, std::string table);
 	
 	void clearTable();
+	void fill(int rows);
+	
 	void testCustomScanner();
+	void testKeyScanner();
 	
 	void run();
 };
