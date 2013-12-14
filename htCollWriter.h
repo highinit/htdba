@@ -1,0 +1,40 @@
+/* 
+ * File:   htCollWriter.h
+ * Author: phrk
+ *
+ * Created on December 11, 2013, 7:56 PM
+ */
+
+#ifndef HTCOLLWRITER_H
+#define	HTCOLLWRITER_H
+
+#include "htDba.h"
+#include "../tetramorph/threadpool/tasklauncher.h"
+
+class htCollWriterConc
+{	
+	ThriftClientPtr m_client;
+	Hypertable::ThriftGen::Namespace m_ns;
+	std::string m_table;
+	
+	bool m_stopping;
+	bool m_stoped;
+	
+public:
+	
+	htCollWriterConc(ThriftClientPtr client,
+				std::string ns,
+				std::string table);
+	
+	~htCollWriterConc();
+	TaskLauncher::TaskRet checkFlush();
+	
+	void insertAsync(KeyValue cell, std::string coll);
+	void insertSync(KeyValue cell, std::string coll);
+	void removeSync(std::string key, std::string coll);
+};
+
+typedef boost::shared_ptr<htCollWriterConc> htCollWriterConcPtr;
+
+#endif	/* HTCOLLWRITER_H */
+
