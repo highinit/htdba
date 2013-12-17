@@ -4,11 +4,20 @@ htKeyScanner::htKeyScanner(ThriftClientPtr client,
 				std::string _ns,
 				std::string table)
 {
+	m_table = table;
 	m_client = client;
 	m_ss.keys_only=true;
 	m_ss.__isset.keys_only = true;
-	Hypertable::ThriftGen::Namespace ns = client->namespace_open(_ns);
-	m_s = client->open_scanner(ns, table, m_ss);
+	m_ns = client->namespace_open(_ns);
+	
+	reset();
+}
+
+void htKeyScanner::reset()
+{
+	m_s = m_client->open_scanner(m_ns, m_table, m_ss);
+	while (buffer.size()!=0)
+		buffer.pop();
 	loadMore();
 }
 

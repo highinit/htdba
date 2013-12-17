@@ -14,8 +14,11 @@
 class htKeyScanner
 {
 	ThriftClientPtr m_client;
+	std::string m_table;
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
+	Hypertable::ThriftGen::Namespace m_ns;
+	
 	
 	std::queue<std::string> buffer;
 	
@@ -29,6 +32,7 @@ public:
 	~htKeyScanner();
 	
 	std::string getNextKey();
+	void reset();
 	bool end();
 };
 
