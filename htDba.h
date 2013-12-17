@@ -67,6 +67,17 @@ public:
 		end(_end)
 	{
 	}
+	
+	bool ok() const
+	{
+		if (beg <= end)
+			return true;
+		return false;
+	}
+	std::string toString() const
+	{
+		return "{ "+beg+", "+ end+" }";
+	}
 };
 
 class htLine
