@@ -132,7 +132,7 @@ void htDbaTests::testKeyScanner()
 	fill(10);
 	sleep(2);
 	
-	htKeyScanner s(m_client, m_ns, m_table);
+	htKeyScanner s(m_client, m_ns, m_table, KeyRange("4","7"));
 	while (!s.end())
 	{
 		std::cout << "key:" << s.getNextKey() << std::endl;

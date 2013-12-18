@@ -2,13 +2,35 @@
 
 htKeyScanner::htKeyScanner(ThriftClientPtr client,
 				std::string _ns,
-				std::string table)
+				std::string table,
+				const KeyRange range)
 {
 	m_table = table;
 	m_client = client;
+	
 	m_ss.keys_only=true;
 	m_ss.__isset.keys_only = true;
 	m_ns = client->namespace_open(_ns);
+	
+	if (range.ok())
+	{
+		Hypertable::ThriftGen::RowInterval interval;
+		interval.__isset.start_row = true;
+		interval.__isset.end_row = true;
+		interval.__isset.start_inclusive = true;
+		interval.__isset.end_inclusive = true;
+		interval.start_row = range.beg;
+		interval.end_row = range.end;
+		interval.start_inclusive = true;
+		interval.end_inclusive = true;
+
+
+
+		m_ss.__isset.row_intervals = true;
+		std::vector<Hypertable::ThriftGen::RowInterval> intervals;
+		intervals.push_back(interval);
+		m_ss.__set_row_intervals(intervals);
+	}
 	
 	reset();
 }

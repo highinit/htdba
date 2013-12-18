@@ -28,7 +28,8 @@ public:
 	
 	htKeyScanner(ThriftClientPtr client,
 				std::string ns,
-				std::string table);
+				std::string table,
+				const KeyRange range = KeyRange::getEmptyRange());
 	~htKeyScanner();
 	
 	std::string getNextKey();

@@ -74,6 +74,12 @@ public:
 			return true;
 		return false;
 	}
+	
+	static KeyRange getEmptyRange()
+	{
+		return KeyRange("b", "a");
+	}
+	
 	std::string toString() const
 	{
 		return "{ "+beg+", "+ end+" }";

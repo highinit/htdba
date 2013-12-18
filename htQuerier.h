@@ -29,6 +29,7 @@ public:
 				std::string table);
 	
 	std::string getColl(std::string key, std::string coll);
+	//void getKeys(const KeyRange &range, std::vector<std::string> &keys);
 	
 	~htQuerier();
 };
