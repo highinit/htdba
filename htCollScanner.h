@@ -8,10 +8,12 @@
 class htCollScanner
 {
 	ThriftClientPtr m_client;
+	Hypertable::ThriftGen::Namespace m_ns;
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
 	
 	std::string m_coll;
+	std::string m_table;
 	
 	std::queue<KeyValue> buffer;
 	
@@ -27,6 +29,8 @@ public:
 	~htCollScanner();
 	
 	KeyValue getNextCell();
+	void reset();
+	void reset(const KeyRange &_range);
 	
 	bool end();
 };

@@ -43,6 +43,30 @@ void htKeyScanner::reset()
 	loadMore();
 }
 
+void htKeyScanner::reset(const KeyRange &range)
+{
+	if (range.ok())
+	{
+		Hypertable::ThriftGen::RowInterval interval;
+		interval.__isset.start_row = true;
+		interval.__isset.end_row = true;
+		interval.__isset.start_inclusive = true;
+		interval.__isset.end_inclusive = true;
+		interval.start_row = range.beg;
+		interval.end_row = range.end;
+		interval.start_inclusive = true;
+		interval.end_inclusive = true;
+
+
+
+		m_ss.__isset.row_intervals = true;
+		std::vector<Hypertable::ThriftGen::RowInterval> intervals;
+		intervals.push_back(interval);
+		m_ss.__set_row_intervals(intervals);
+	}
+	reset();
+}
+
 void htKeyScanner::loadMore()
 {
 	std::vector<Hypertable::ThriftGen::Cell> cells;

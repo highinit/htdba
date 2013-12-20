@@ -7,13 +7,11 @@ htCollScanner::htCollScanner(ThriftClientPtr client,
 				std::string table,
 				std::string coll):
 	m_client(client),
-	m_coll(coll)
+	m_coll(coll),
+	m_table(table)
 {
-	m_scanner_end = 0;
-	Hypertable::ThriftGen::Namespace m_ns = client->namespace_open(ns);
-	m_s = client->open_scanner(m_ns, table, m_ss);
-	
-	loadMore();
+	m_ns = client->namespace_open(ns);
+	reset();
 }
 
 void htCollScanner::loadMore()
@@ -50,6 +48,38 @@ KeyValue htCollScanner::getNextCell()
 	{
 		throw "htCollScanner::getNextCell() buffer empty";
 	}
+}
+
+void htCollScanner::reset()
+{
+	m_s = m_client->open_scanner(m_ns, m_table, m_ss);
+	while (buffer.size()!=0)
+		buffer.pop();
+	loadMore();
+}
+
+void htCollScanner::reset(const KeyRange &range)
+{
+	if (range.ok())
+	{
+		Hypertable::ThriftGen::RowInterval interval;
+		interval.__isset.start_row = true;
+		interval.__isset.end_row = true;
+		interval.__isset.start_inclusive = true;
+		interval.__isset.end_inclusive = true;
+		interval.start_row = range.beg;
+		interval.end_row = range.end;
+		interval.start_inclusive = true;
+		interval.end_inclusive = true;
+
+
+
+		m_ss.__isset.row_intervals = true;
+		std::vector<Hypertable::ThriftGen::RowInterval> intervals;
+		intervals.push_back(interval);
+		m_ss.__set_row_intervals(intervals);
+	}
+	reset();
 }
 
 bool htCollScanner::end()

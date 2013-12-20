@@ -34,6 +34,7 @@ public:
 	
 	std::string getNextKey();
 	void reset();
+	void reset(const KeyRange &range);
 	bool end();
 };
 
