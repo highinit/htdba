@@ -12,12 +12,12 @@ class htCollScanner
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
 	
+	std::string m_ns_name;
+	
 	std::string m_coll;
 	std::string m_table;
 	
 	std::queue<KeyValue> buffer;
-	
-	bool m_scanner_end;
 	
 	void loadMore();
 	
@@ -26,6 +26,9 @@ public:
 				std::string ns,
 				std::string table,
 				std::string coll);
+	
+	htCollScanner(const htCollScanner &a);
+	
 	~htCollScanner();
 	
 	KeyValue getNextCell();

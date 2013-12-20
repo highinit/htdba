@@ -8,9 +8,19 @@ htCollScanner::htCollScanner(ThriftClientPtr client,
 				std::string coll):
 	m_client(client),
 	m_coll(coll),
-	m_table(table)
+	m_table(table),
+	m_ns_name(ns)
 {
-	m_ns = client->namespace_open(ns);
+	reset();
+}
+
+htCollScanner::htCollScanner(const htCollScanner &a)
+{
+	m_client = a.m_client;
+	m_coll = a.m_coll;
+	m_table = a.m_table;
+	m_ns = a.m_ns;
+	m_ns_name = a.m_ns_name;
 	reset();
 }
 
@@ -52,6 +62,7 @@ KeyValue htCollScanner::getNextCell()
 
 void htCollScanner::reset()
 {
+	m_ns = m_client->namespace_open(m_ns_name);
 	m_s = m_client->open_scanner(m_ns, m_table, m_ss);
 	while (buffer.size()!=0)
 		buffer.pop();
@@ -71,8 +82,6 @@ void htCollScanner::reset(const KeyRange &range)
 		interval.end_row = range.end;
 		interval.start_inclusive = true;
 		interval.end_inclusive = true;
-
-
 
 		m_ss.__isset.row_intervals = true;
 		std::vector<Hypertable::ThriftGen::RowInterval> intervals;
