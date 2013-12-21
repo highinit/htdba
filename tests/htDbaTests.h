@@ -14,10 +14,11 @@
 #include "../htCustomScanner.h"
 #include "../htQuerier.h"
 #include "../htKeyScanner.h"
+#include "../htConnPool.h"
 
 class htDbaTests
 {
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_db_pool;
 	std::string m_ns;
 	std::string m_table;
 	

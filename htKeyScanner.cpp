@@ -1,16 +1,19 @@
 #include "htKeyScanner.h"
+#include "htConnPool.h"
 
-htKeyScanner::htKeyScanner(ThriftClientPtr client,
+htKeyScanner::htKeyScanner(htConnPoolPtr conn_pool,
 				std::string _ns,
 				std::string table,
 				const KeyRange range)
 {
 	m_table = table;
-	m_client = client;
+	m_conn_pool = conn_pool;
 	
 	m_ss.keys_only=true;
 	m_ss.__isset.keys_only = true;
-	m_ns = client->namespace_open(_ns);
+	
+	htConnPool::htSession sess = m_conn_pool->get();
+	m_ns = sess.client->namespace_open(_ns);
 	
 	if (range.ok())
 	{
@@ -32,15 +35,15 @@ htKeyScanner::htKeyScanner(ThriftClientPtr client,
 		m_ss.__set_row_intervals(intervals);
 	}
 	
-	reset();
+	reset(sess);
 }
 
-void htKeyScanner::reset()
+void htKeyScanner::reset(htConnPool::htSession sess)
 {
-	m_s = m_client->open_scanner(m_ns, m_table, m_ss);
+	m_s = sess.client->open_scanner(m_ns, m_table, m_ss);
 	while (buffer.size()!=0)
 		buffer.pop();
-	loadMore();
+	loadMore(sess);
 }
 
 void htKeyScanner::reset(const KeyRange &range)
@@ -64,13 +67,20 @@ void htKeyScanner::reset(const KeyRange &range)
 		intervals.push_back(interval);
 		m_ss.__set_row_intervals(intervals);
 	}
-	reset();
+	htConnPool::htSession sess = m_conn_pool->get();
+	reset(sess);
 }
 
-void htKeyScanner::loadMore()
+void htKeyScanner::reset()
+{
+	htConnPool::htSession sess = m_conn_pool->get();
+	reset(sess);
+}
+
+void htKeyScanner::loadMore(htConnPool::htSession sess)
 {
 	std::vector<Hypertable::ThriftGen::Cell> cells;
-	m_client->scanner_get_cells(cells, m_s);
+	sess.client->scanner_get_cells(cells, m_s);
 	
 	if (cells.size()==0)
 	{
@@ -95,7 +105,7 @@ std::string htKeyScanner::getNextKey()
 		buffer.pop();
 		if (buffer.size()<10)
 		{
-			loadMore();
+			loadMore(m_conn_pool->get());
 		}
 		return k;
 	}
@@ -112,5 +122,5 @@ bool htKeyScanner::end()
 
 htKeyScanner::~htKeyScanner()
 {
-	m_client->scanner_close(m_s);
+	//m_client->scanner_close(m_s);
 }

@@ -9,11 +9,12 @@
 #define	HTKEYSCANNER_H
 
 #include "htDba.h"
+#include "htConnPool.h"
 #include <queue>
 
 class htKeyScanner
 {
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_conn_pool;
 	std::string m_table;
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
@@ -22,19 +23,20 @@ class htKeyScanner
 	
 	std::queue<std::string> buffer;
 	
-	void loadMore();
-	
+	void loadMore(htConnPool::htSession sess);
+	void reset(htConnPool::htSession sess);
 public:
 	
-	htKeyScanner(ThriftClientPtr client,
+	htKeyScanner(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table,
 				const KeyRange range = KeyRange::getEmptyRange());
 	~htKeyScanner();
 	
 	std::string getNextKey();
-	void reset();
+	
 	void reset(const KeyRange &range);
+	void reset();
 	bool end();
 };
 

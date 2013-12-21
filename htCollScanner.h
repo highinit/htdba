@@ -28,6 +28,7 @@ public:
 				std::string coll);
 	
 	htCollScanner(const htCollScanner &a);
+	htCollScanner(const htCollScanner* a);
 	
 	~htCollScanner();
 	

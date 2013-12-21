@@ -6,11 +6,13 @@ htDbaTests::htDbaTests(std::string ns, std::string table):
 	m_ns(ns),
 	m_table(table)
 {
-	m_client.reset( new ThriftClient("localhost", 38080));
+	//m_client.reset( new ThriftClient("localhost", 38080));
+	m_db_pool.reset(new htConnPool("localhost", 38080, 5));
 }
 
 void htDbaTests::clearTable()
 {
+	ThriftClientPtr m_client = m_db_pool->get().client;
 	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
 	Hypertable::ThriftGen::HqlResult result;
 	m_client->hql_query(result, ns, "drop table if exists "+m_table);
@@ -49,6 +51,7 @@ std::string htDbaTests::getCvalue(int row)
 
 void htDbaTests::fill(int nrows)
 {
+	ThriftClientPtr m_client = m_db_pool->get().client;
 	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
 	
 	htCollWriterConc writer(m_client, m_ns, m_table);
@@ -66,6 +69,7 @@ void htDbaTests::fill(int nrows)
 void htDbaTests::testCustomScanner()
 {
 	clearTable();
+	ThriftClientPtr m_client = m_db_pool->get().client;
 	const int nrows = 1000;
 	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
 	
@@ -132,7 +136,8 @@ void htDbaTests::testKeyScanner()
 	fill(10);
 	sleep(2);
 	
-	htKeyScanner s(m_client, m_ns, m_table, KeyRange("4","7"));
+	//ThriftClientPtr m_client = m_db_pool->get().client;
+	htKeyScanner s(m_db_pool, m_ns, m_table, KeyRange("4","7"));
 	while (!s.end())
 	{
 		std::cout << "key:" << s.getNextKey() << std::endl;

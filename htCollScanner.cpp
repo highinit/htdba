@@ -5,12 +5,12 @@
 htCollScanner::htCollScanner(ThriftClientPtr client,
 				std::string ns,
 				std::string table,
-				std::string coll):
-	m_client(client),
-	m_coll(coll),
-	m_table(table),
-	m_ns_name(ns)
+				std::string coll)
 {
+	m_client = client;
+	m_coll = coll;
+	m_table = table;
+	m_ns_name = ns;
 	reset();
 }
 
@@ -21,6 +21,16 @@ htCollScanner::htCollScanner(const htCollScanner &a)
 	m_table = a.m_table;
 	m_ns = a.m_ns;
 	m_ns_name = a.m_ns_name;
+	reset();
+}
+
+htCollScanner::htCollScanner(const htCollScanner* a)
+{
+	m_client = a->m_client;
+	m_coll = a->m_coll;
+	m_table = a->m_table;
+	m_ns = a->m_ns;
+	m_ns_name = a->m_ns_name;
 	reset();
 }
 
