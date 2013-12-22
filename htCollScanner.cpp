@@ -1,13 +1,14 @@
 #include <queue>
 
 #include "htCollScanner.h"
+#include "htConnPool.h"
 
-htCollScanner::htCollScanner(ThriftClientPtr client,
+htCollScanner::htCollScanner(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table,
 				std::string coll)
 {
-	m_client = client;
+	m_conn_pool = conn_pool;
 	m_coll = coll;
 	m_table = table;
 	m_ns_name = ns;
@@ -16,7 +17,7 @@ htCollScanner::htCollScanner(ThriftClientPtr client,
 
 htCollScanner::htCollScanner(const htCollScanner &a)
 {
-	m_client = a.m_client;
+	m_conn_pool = a.m_conn_pool;
 	m_coll = a.m_coll;
 	m_table = a.m_table;
 	m_ns = a.m_ns;
@@ -26,7 +27,7 @@ htCollScanner::htCollScanner(const htCollScanner &a)
 
 htCollScanner::htCollScanner(const htCollScanner* a)
 {
-	m_client = a->m_client;
+	m_conn_pool = a->m_conn_pool;
 	m_coll = a->m_coll;
 	m_table = a->m_table;
 	m_ns = a->m_ns;
@@ -34,10 +35,10 @@ htCollScanner::htCollScanner(const htCollScanner* a)
 	reset();
 }
 
-void htCollScanner::loadMore()
+void htCollScanner::loadMore(htConnPool::htSession &sess)
 {
 	std::vector<Hypertable::ThriftGen::Cell> cells;
-	m_client->next_cells(cells, m_s);
+	sess.client->next_cells(cells, m_s);
 	
 	if (cells.size()==0)
 	{
@@ -60,7 +61,8 @@ KeyValue htCollScanner::getNextCell()
 		buffer.pop();
 		if (buffer.size()<10)
 		{
-			loadMore();
+			htConnPool::htSession sess = m_conn_pool->get();
+			loadMore(sess);
 		}
 		return kv;
 	}
@@ -72,11 +74,17 @@ KeyValue htCollScanner::getNextCell()
 
 void htCollScanner::reset()
 {
-	m_ns = m_client->namespace_open(m_ns_name);
-	m_s = m_client->open_scanner(m_ns, m_table, m_ss);
+	htConnPool::htSession sess = m_conn_pool->get();
+	reset(sess);
+}
+
+void htCollScanner::reset(htConnPool::htSession &sess)
+{
+	m_ns = sess.client->namespace_open(m_ns_name);
+	m_s = sess.client->open_scanner(m_ns, m_table, m_ss);
 	while (buffer.size()!=0)
 		buffer.pop();
-	loadMore();
+	loadMore(sess);
 }
 
 void htCollScanner::reset(const KeyRange &range)
@@ -108,7 +116,7 @@ bool htCollScanner::end()
 
 htCollScanner::~htCollScanner()
 {
-	m_client->scanner_close(m_s);
+//	m_client->scanner_close(m_s);
 }
 
 

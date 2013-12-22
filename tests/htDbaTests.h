@@ -27,6 +27,9 @@ class htDbaTests
 	std::string getBvalue(int row);
 	std::string getCvalue(int row);
 
+	TaskLauncher::TaskRet testKeyScannerThread(htKeyScannerPtr key_scanner);
+	hLock testKeyScannerLock;
+	void testKeyScannerFinished();
 public:
 	
 	htDbaTests(std::string ns, std::string table);

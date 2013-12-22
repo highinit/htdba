@@ -51,10 +51,10 @@ std::string htDbaTests::getCvalue(int row)
 
 void htDbaTests::fill(int nrows)
 {
-	ThriftClientPtr m_client = m_db_pool->get().client;
-	Hypertable::ThriftGen::Namespace ns = m_client->namespace_open(m_ns);
+	htConnPool::htSession sess = m_db_pool->get();
+	Hypertable::ThriftGen::Namespace ns = sess.client->namespace_open(m_ns);
 	
-	htCollWriterConc writer(m_client, m_ns, m_table);
+	htCollWriterConc writer(m_db_pool, m_ns, m_table);
 	
 	for (int i = 0; i<nrows; i++)
 	{
@@ -63,7 +63,7 @@ void htDbaTests::fill(int nrows)
 		writer.insertSync(KeyValue(getRow(i), getCvalue(i)), "c");
 	}
 	
-	m_client->close_namespace(ns);
+	sess.client->close_namespace(ns);
 }
 
 void htDbaTests::testCustomScanner()
@@ -130,19 +130,57 @@ void htDbaTests::testCustomScanner()
 	m_client->close_namespace(ns);
 }
 
+TaskLauncher::TaskRet htDbaTests::testKeyScannerThread(htKeyScannerPtr key_scanner)
+{
+	std::vector<std::string> keys;
+	while (!key_scanner->end()) {
+		std::string key =key_scanner->getNextKey();
+		keys.push_back(key);
+	}
+	
+	testKeyScannerLock.lock();
+	for (int i = 0; i<keys.size(); i++) {
+		std::cout << keys[i] << " ";
+	}
+	std::cout << std::endl;
+	testKeyScannerLock.unlock();
+	
+	return TaskLauncher::NO_RELAUNCH;
+}
+
+void htDbaTests::testKeyScannerFinished()
+{
+	exit(0);
+}
+
 void htDbaTests::testKeyScanner()
 {
 	clearTable();
-	fill(10);
+	fill(50);
 	sleep(2);
+
+	const int nthreads = 8;
+	hThreadPool *pool = new hThreadPool(nthreads);
+	TaskLauncherPtr launcher(new TaskLauncher(pool, nthreads, boost::bind(
+				&htDbaTests::testKeyScannerFinished, this)));
 	
-	//ThriftClientPtr m_client = m_db_pool->get().client;
+	for (int i = 0; i<nthreads; i++) {
+		htKeyScannerPtr key_scanner(
+		new htKeyScanner(m_db_pool, m_ns, m_table ) );
+		launcher->addTask(new boost::function<TaskLauncher::TaskRet()>(
+				boost::bind(&htDbaTests::testKeyScannerThread, this, key_scanner) ) );
+	}
+	launcher->setNoMoreTasks();
+	pool->run();
+	pool->join();
+	
+	/*
 	htKeyScanner s(m_db_pool, m_ns, m_table, KeyRange("4","7"));
 	while (!s.end())
 	{
 		std::cout << "key:" << s.getNextKey() << std::endl;
 	}
-	
+	*/
 }
 
 void htDbaTests::run()

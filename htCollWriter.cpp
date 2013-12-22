@@ -3,23 +3,25 @@
 #include "htCollWriter.h"
 #include "htCollScanner.h"
 
-htCollWriterConc::htCollWriterConc(ThriftClientPtr client,
+htCollWriterConc::htCollWriterConc(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table):
-		m_client(client),
+		m_conn_pool(conn_pool),
 		m_table(table),
 		m_stoped(false),
 		m_stopping(false)
 {
-	m_ns = client->namespace_open(ns);
+	htConnPool::htSession sess = m_conn_pool->get();
+	m_ns = sess.client->namespace_open(ns);
 }
 	
 void htCollWriterConc::insertAsync(KeyValue cell, std::string coll)
 {
 	throw "htCollWriterConc::insertAsync not implemented";
-	Hypertable::ThriftGen::Future ff = m_client->future_open(0);
+	htConnPool::htSession sess = m_conn_pool->get();
+	Hypertable::ThriftGen::Future ff = sess.client->future_open(0);
 	Hypertable::ThriftGen::MutatorAsync m = 
-			m_client->async_mutator_open(m_ns, m_table, ff, 0);
+			sess.client->async_mutator_open(m_ns, m_table, ff, 0);
 	
 	std::vector<Hypertable::ThriftGen::Cell> cells;
 	
@@ -31,16 +33,17 @@ void htCollWriterConc::insertAsync(KeyValue cell, std::string coll)
 											0,
 							Hypertable::ThriftGen::KeyFlag::INSERT));
 
-	m_client->async_mutator_set_cells(m, cells);
-	m_client->async_mutator_flush(m);
-	m_client->async_mutator_close(m);
-	m_client->future_close(ff);
+	sess.client->async_mutator_set_cells(m, cells);
+	sess.client->async_mutator_flush(m);
+	sess.client->async_mutator_close(m);
+	sess.client->future_close(ff);
 }
 
 void htCollWriterConc::insertSync(KeyValue cell, std::string coll)
 {
+	htConnPool::htSession sess = m_conn_pool->get();
 	Hypertable::ThriftGen::MutateSpec mutate;
-	m_client->offer_cell(m_ns, m_table, mutate, \
+	sess.client->offer_cell(m_ns, m_table, mutate, \
 			Hypertable::ThriftGen::make_cell(cell.key.c_str(),
 										coll.c_str(),
 										0,
@@ -55,8 +58,9 @@ void htCollWriterConc::insertSync(KeyValue cell, std::string coll)
 
 void htCollWriterConc::removeSync(std::string key, std::string coll)
 {
+	htConnPool::htSession sess = m_conn_pool->get();
 	Hypertable::ThriftGen::MutateSpec mutate;
-	m_client->offer_cell(m_ns, m_table, mutate, \
+	sess.client->offer_cell(m_ns, m_table, mutate, \
 			Hypertable::ThriftGen::make_cell(key.c_str(),
 										coll.c_str(),
 										0,
@@ -68,7 +72,7 @@ void htCollWriterConc::removeSync(std::string key, std::string coll)
 
 htCollWriterConc::~htCollWriterConc()
 {
-	m_client->namespace_close(m_ns);
+//	m_client->namespace_close(m_ns);
 }
 
 

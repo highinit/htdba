@@ -33,8 +33,11 @@ htConnPool::htSession htConnPool::get()
 		if (conn_ticket) {
 			return htSession(connections[i].client, conn_ticket);
 		}
+		if (i==connections.size()-1)
+			i = 0;
 	}
-	htConnection new_conn(ThriftClientPtr( new ThriftClient(m_ip, m_port) ) );
-	connections.push_back(new_conn);
-	return htSession(new_conn.client, new_conn.lock.tryLock());
+	
+//	htConnection new_conn(ThriftClientPtr( new ThriftClient(m_ip, m_port) ) );
+//	connections.push_back(new_conn);
+//	return htSession(new_conn.client, new_conn.lock.tryLock());
 }

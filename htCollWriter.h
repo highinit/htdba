@@ -9,11 +9,12 @@
 #define	HTCOLLWRITER_H
 
 #include "htDba.h"
+#include "htConnPool.h"
 #include "../tetramorph/threadpool/tasklauncher.h"
 
 class htCollWriterConc
 {	
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_conn_pool;
 	Hypertable::ThriftGen::Namespace m_ns;
 	std::string m_table;
 	
@@ -22,7 +23,7 @@ class htCollWriterConc
 	
 public:
 	
-	htCollWriterConc(ThriftClientPtr client,
+	htCollWriterConc(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table);
 	

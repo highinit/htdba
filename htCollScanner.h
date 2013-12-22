@@ -2,12 +2,13 @@
 #define PAGES_DBA_H
 
 #include "htDba.h"
+#include "htConnPool.h"
 #include <queue>
 #include "../tetramorph/threadpool/threadpool.h"
 
 class htCollScanner
 {
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_conn_pool;
 	Hypertable::ThriftGen::Namespace m_ns;
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
@@ -19,10 +20,10 @@ class htCollScanner
 	
 	std::queue<KeyValue> buffer;
 	
-	void loadMore();
-	
+	void loadMore(htConnPool::htSession &sess);
+	void reset(htConnPool::htSession &sess);
 public:
-	htCollScanner(ThriftClientPtr client,
+	htCollScanner(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table,
 				std::string coll);
