@@ -6,13 +6,14 @@
 htCollScanner::htCollScanner(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table,
-				std::string coll)
+				std::string coll,
+				KeyRange _range)
 {
 	m_conn_pool = conn_pool;
 	m_coll = coll;
 	m_table = table;
 	m_ns_name = ns;
-	reset();
+	reset(_range);
 }
 
 htCollScanner::htCollScanner(const htCollScanner &a)

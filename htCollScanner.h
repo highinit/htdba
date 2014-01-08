@@ -26,7 +26,8 @@ public:
 	htCollScanner(htConnPoolPtr conn_pool,
 				std::string ns,
 				std::string table,
-				std::string coll);
+				std::string coll,
+				KeyRange _range = KeyRange::getEmptyRange());
 	
 	htCollScanner(const htCollScanner &a);
 	htCollScanner(const htCollScanner* a);
