@@ -41,7 +41,11 @@ private:
 	
 	std::vector<htConnection> connections;
 	hAutoLock get_lock;
+	
+	void connect();
 public:
+	htConnPool(const htConnPool &a);
+	htConnPool& operator=(htConnPool &a);
 	htConnPool(const std::string &_ip, uint32_t _port, size_t _size);
 	htSession get();
 };

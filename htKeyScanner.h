@@ -20,7 +20,7 @@ class htKeyScanner
 	Hypertable::ThriftGen::Scanner m_s;
 	Hypertable::ThriftGen::Namespace m_ns;
 	
-	
+	std::string m_last_key;
 	std::queue<std::string> buffer;
 	
 	void loadMore(htConnPool::htSession sess);

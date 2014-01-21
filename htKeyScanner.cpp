@@ -6,6 +6,7 @@ htKeyScanner::htKeyScanner(htConnPoolPtr conn_pool,
 				std::string table,
 				const KeyRange range)
 {
+	m_last_key = "";
 	m_table = table;
 	m_conn_pool = conn_pool;
 	
@@ -80,19 +81,24 @@ void htKeyScanner::reset()
 void htKeyScanner::loadMore(htConnPool::htSession sess)
 {
 	std::vector<Hypertable::ThriftGen::Cell> cells;
-	sess.client->scanner_get_cells(cells, m_s);
+	//sess.client->scanner_get_cells(cells, m_s);
+	try {
+		sess.client->next_cells(cells, m_s);
+	} catch (Hypertable::ThriftGen::ClientException &e) {
+		std::cout << "thrift exception: " << e << std::endl;
+	} catch (...) {
+		std::cout << "thrift unknown exception ";
+	}
 	
-	if (cells.size()==0)
-	{
+	if (cells.size()==0) {
 		return;
 	}
 	
-	for (int i = 0; i<cells.size(); i++)
-	{
-		if (i==0)
+	for (int i = 0; i<cells.size(); i++) {
+		if (m_last_key != cells[i].key.row) {
 			buffer.push(cells[i].key.row);
-		else if (cells[i].key.row != cells[i-1].key.row)
-			buffer.push(cells[i].key.row);
+			m_last_key = cells[i].key.row;
+		}
 	}
 	cells.clear();
 }
@@ -105,7 +111,9 @@ std::string htKeyScanner::getNextKey()
 		buffer.pop();
 		if (buffer.size()<10)
 		{
-			loadMore(m_conn_pool->get());
+			htConnPool::htSession sess = m_conn_pool->get();
+			//for (int i = 0; i<10; i++)
+			loadMore(sess);
 		}
 		return k;
 	}
