@@ -9,10 +9,11 @@
 #define	HTQUERIER_H
 
 #include "htDba.h"
+#include "htConnPool.h"
 
 class htQuerier
 {
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_conn_pool;
 	Hypertable::ThriftGen::Namespace m_ns;
 	std::string m_table;
 
@@ -24,11 +25,13 @@ public:
 		BROKEN_RESULT
 	};
 	
-	htQuerier(ThriftClientPtr client,
-				std::string ns,
-				std::string table);
+	htQuerier(htConnPoolPtr conn_pool,
+				const std::string &_ns,
+				const std::string &_table);
 	
-	std::string getColl(std::string key, std::string coll);
+	bool getColl(const std::string &_key,
+				const std::string &_coll,
+				std::string &value);
 	//void getKeys(const KeyRange &range, std::vector<std::string> &keys);
 	
 	~htQuerier();

@@ -31,7 +31,7 @@ public:
 	std::string key;
 	std::string value;
 	KeyValue() { } 
-	KeyValue(std::string _key, std::string _value):
+	KeyValue(const std::string &_key, const std::string &_value):
 		key(_key),
 		value(_value)
 	{

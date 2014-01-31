@@ -31,7 +31,7 @@ public:
 	TaskLauncher::TaskRet checkFlush();
 	
 	void insertAsync(KeyValue cell, std::string coll);
-	void insertSync(KeyValue cell, std::string coll);
+	void insertSync(const KeyValue &_cell, const std::string &_coll);
 	void removeSync(std::string key, std::string coll);
 };
 

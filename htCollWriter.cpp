@@ -8,13 +8,13 @@ htCollWriterConc::htCollWriterConc(htConnPoolPtr conn_pool,
 				std::string table):
 		m_conn_pool(conn_pool),
 		m_table(table),
-		m_stoped(false),
-		m_stopping(false)
+		m_stopping(false),
+		m_stoped(false)
 {
 	htConnPool::htSession sess = m_conn_pool->get();
 	m_ns = sess.client->namespace_open(ns);
 }
-	
+
 void htCollWriterConc::insertAsync(KeyValue cell, std::string coll)
 {
 	throw "htCollWriterConc::insertAsync not implemented";
@@ -39,19 +39,31 @@ void htCollWriterConc::insertAsync(KeyValue cell, std::string coll)
 	sess.client->future_close(ff);
 }
 
-void htCollWriterConc::insertSync(KeyValue cell, std::string coll)
+void htCollWriterConc::insertSync(const KeyValue &_cell, const std::string &_coll)
 {
-	htConnPool::htSession sess = m_conn_pool->get();
-	Hypertable::ThriftGen::MutateSpec mutate;
-	sess.client->offer_cell(m_ns, m_table, mutate, \
-			Hypertable::ThriftGen::make_cell(cell.key.c_str(),
-										coll.c_str(),
-										0,
-										cell.value.c_str(),
-										time(0),	// FIXME
-										0,
-						Hypertable::ThriftGen::KeyFlag::INSERT));
+	//std::cout << "htCollWriterConc::insertSync row:" << _cell.key << std::endl;
+	try {
+		htConnPool::htSession sess = m_conn_pool->get();
+		Hypertable::ThriftGen::MutateSpec mutate;
+		sess.client->offer_cell(m_ns, m_table, mutate, \
+				Hypertable::ThriftGen::make_cell(_cell.key.c_str(),
+											_coll.c_str(),
+											0,
+											_cell.value,
+											time(0),	// FIXME
+											0,
+							Hypertable::ThriftGen::KeyFlag::INSERT));
+	} catch (Hypertable::ThriftGen::ClientException &ex) {
+		std::cout << "htCollWriterConc::insertSync Hypertable::ThriftGen::ClientException: " 
+				<< ex.message << std::endl;
+	}
+	catch (Hypertable::Exception &ex) {
+		std::cout << ex.what() << std::endl;
+	}
+	catch (std::exception &ex) {
+		std::cout << "htCollWriterConc::insertSync std EXCEPTION: " << ex.what() << std::endl;
 		
+	}
 	//m_client->mutator_set_cells(m, cells);
 	//m_client->mutator_close(m);
 }
