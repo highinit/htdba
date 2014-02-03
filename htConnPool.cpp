@@ -53,7 +53,7 @@ htConnPool::htSession htConnPool::get()
 	int i = 0;
 	while (true) {
 		if (i>connections.size()-1) {
-			std::cout << "waiting for free conneciton\n";
+			//std::cout << "waiting for free conneciton\n";
 			i = 0;
 		}
 		
