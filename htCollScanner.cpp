@@ -4,15 +4,15 @@
 #include "htConnPool.h"
 
 htCollScanner::htCollScanner(htConnPoolPtr conn_pool,
-				std::string ns,
-				std::string table,
-				std::string coll,
-				KeyRange _range)
+				const std::string &_ns,
+				const std::string &_table,
+				const std::string &_coll,
+				const KeyRange &_range)
 {
 	m_conn_pool = conn_pool;
-	m_coll = coll;
-	m_table = table;
-	m_ns_name = ns;
+	m_coll = _coll;
+	m_table = _table;
+	m_ns_name = _ns;
 	reset(_range);
 }
 

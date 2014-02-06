@@ -24,10 +24,10 @@ class htCollScanner
 	void reset(htConnPool::htSession &sess);
 public:
 	htCollScanner(htConnPoolPtr conn_pool,
-				std::string ns,
-				std::string table,
-				std::string coll,
-				KeyRange _range = KeyRange::getEmptyRange());
+				const std::string &_ns,
+				const std::string &_table,
+				const std::string &_coll,
+				const KeyRange &_range = KeyRange::getEmptyRange());
 	
 	htCollScanner(const htCollScanner &a);
 	htCollScanner(const htCollScanner* a);

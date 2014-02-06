@@ -119,7 +119,8 @@ std::string htKeyScanner::getNextKey()
 	}
 	else
 	{
-		throw "htCollScanner::getNextCell() buffer empty";
+		
+		throw std::string("htCollScanner::getNextCell() buffer empty");
 	}
 }
 
