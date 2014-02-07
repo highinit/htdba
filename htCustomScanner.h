@@ -9,14 +9,19 @@
 #define	HTCUSTOMSCANNER_H
 
 #include "htDba.h"
+#include "htConnPool.h"
 #include <set>
 
 class htCustomScanner
 {	
-	ThriftClientPtr m_client;
+	htConnPoolPtr m_conn_pool;
+	
+	Hypertable::ThriftGen::Namespace m_ns;
 	Hypertable::ThriftGen::ScanSpec m_ss;
 	Hypertable::ThriftGen::Scanner m_s;
 	
+	std::string m_sns;
+	std::string m_table;
 	std::set<std::string> m_colls;
 	
 	std::queue<htCell> cell_buffer;
@@ -24,18 +29,20 @@ class htCustomScanner
 	
 	size_t m_lines_in_buffer;
 	
-	void loadMore();
+	void loadMore(htConnPool::htSession &_sess);
 	void parseMore();
 	
 public:
-	htCustomScanner(ThriftClientPtr client,
-				std::string ns,
-				std::string table,
-				std::set<std::string> colls,
+	htCustomScanner(htConnPoolPtr _conn_pool,
+				const std::string &_ns,
+				const std::string &_table,
+				const std::set<std::string> &_colls,
 				size_t lines_in_buffer = 10);
 	~htCustomScanner();
-	
-	htLine getNextLine();
+		
+	void reset();
+	void reset(const KeyRange &_range);
+	htLine& getNextLine(htLine &line);
 	
 	bool end();
 };

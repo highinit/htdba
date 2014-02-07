@@ -60,7 +60,7 @@ KeyValue htCollScanner::getNextCell()
 	{
 		KeyValue kv = buffer.front();
 		buffer.pop();
-		if (buffer.size()<10)
+		if (buffer.size()<4096)
 		{
 			htConnPool::htSession sess = m_conn_pool->get();
 			loadMore(sess);

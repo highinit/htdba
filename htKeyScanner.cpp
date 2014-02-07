@@ -109,7 +109,7 @@ std::string htKeyScanner::getNextKey()
 	{
 		std::string k = buffer.front();
 		buffer.pop();
-		if (buffer.size()<10)
+		if (buffer.size()<4096)
 		{
 			htConnPool::htSession sess = m_conn_pool->get();
 			//for (int i = 0; i<10; i++)
