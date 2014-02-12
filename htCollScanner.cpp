@@ -40,36 +40,50 @@ void htCollScanner::loadMore(htConnPool::htSession &sess)
 {
 	std::vector<Hypertable::ThriftGen::Cell> cells;
 	
-	//bool gotcells = false;
-	
-	//size_t attempts = 0;
-	
-	//while (!gotcells) {
-	//	try {
-			sess.client->next_cells(cells, m_s);
-	//		if (cells.size()!=0)
-	//			gotcells = true;
-	//	} catch (...) {
-	//		std::cout << "htCollScanner::loadMore client->next_cells exception\n";
-	//		attempts++;
-	//		if (attempts>5) {
-	//			throw htCollScanner::ExScannerError();
-	//		}
-	//		sleep(1);
-	//	}
-	//}
-	
-	if (cells.size()==0)
+	size_t read_cell_attempts = 0;
+	bool read_cell_ok = false;
+	while (!read_cell_ok && read_cell_attempts < 10)
 	{
-		return;
-	}
 	
-	for (int i = 0; i<cells.size(); i++)
-		if (	cells[i].key.column_family == m_coll)
-	{
-			buffer.push(KeyValue(cells[i].key.row, cells[i].value));
+		bool gotcells = false;
+		size_t attempts = 0;
+
+		sess.client->next_cells(cells, m_s);
+		
+		/*
+		// get next cells
+		while (!gotcells) {
+			try {
+				sess.client->next_cells(cells, m_s);
+				if (cells.size()!=0)
+					gotcells = true;
+			} catch (...) {
+				std::cout << "htCollScanner::loadMore client->next_cells exception\n";
+				attempts++;
+				if (attempts>100) {
+					throw htCollScanner::ExScannerError();
+				}
+				sleep(1);
+			}
+		}*/
+
+		//std::cout << "GOT" << cells.size() << "CELLS!\n";
+
+		if (cells.size()==0)
+		{
+			return;
+		}
+
+		// filter required cells
+		for (int i = 0; i<cells.size(); i++)
+			if (	cells[i].key.column_family == m_coll)
+		{
+				buffer.push(KeyValue(cells[i].key.row, cells[i].value));
+				read_cell_ok = true;
+		}
+		cells.clear();
+		read_cell_attempts++;
 	}
-	cells.clear();
 }
 
 KeyValue htCollScanner::getNextCell() throw (ExScannerError)
@@ -78,7 +92,7 @@ KeyValue htCollScanner::getNextCell() throw (ExScannerError)
 	{
 		KeyValue kv = buffer.front();
 		buffer.pop();
-		if (buffer.size() < 128)
+		if (buffer.size() == 0)
 		{
 			htConnPool::htSession sess = m_conn_pool->get();
 			loadMore(sess);
