@@ -10,7 +10,7 @@
 
 #include "htDba.h"
 #include "htConnPool.h"
-#include "../tetramorph/threadpool/tasklauncher.h"
+#include "hiaux/threads/tasklauncher.h"
 
 class htCollWriterConc
 {	

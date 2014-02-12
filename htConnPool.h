@@ -9,7 +9,7 @@
 #define	HTCONNPOOL_H
 
 #include "htDba.h"
-#include "../tetramorph/threadpool/locks.h"
+#include "hiaux/threads/locks.h"
 
 class htConnPool
 {

@@ -4,7 +4,7 @@
 #include "htDba.h"
 #include "htConnPool.h"
 #include <queue>
-#include "../tetramorph/threadpool/threadpool.h"
+#include "../hiaux/threads/threadpool.h"
 
 class htCollScanner
 {
@@ -23,6 +23,9 @@ class htCollScanner
 	void loadMore(htConnPool::htSession &sess);
 	void reset(htConnPool::htSession &sess);
 public:
+	
+	class ExScannerError { };
+	
 	htCollScanner(htConnPoolPtr conn_pool,
 				const std::string &_ns,
 				const std::string &_table,
@@ -34,7 +37,7 @@ public:
 	
 	~htCollScanner();
 	
-	KeyValue getNextCell();
+	KeyValue getNextCell() throw (ExScannerError);
 	void reset();
 	void reset(const KeyRange &_range);
 	

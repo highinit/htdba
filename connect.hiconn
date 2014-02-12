@@ -1,0 +1,25 @@
+{
+"_NAME" : "htdba",
+
+"_CCFLAGS" : [ "-D_REENTRANT", "-DHAVE_NETINET_IN_H" ],
+
+"_CPPFILES" : [ { "type": "Glob", "mask": "*.cpp" } ],
+
+"_CPPPATH_ABSOLUTE": [ "/opt/hypertable/current/include",
+			"/opt/hypertable/current/include/thrift",
+			"/opt/hypertable/current/include/ThriftBroker/gen-cpp",
+			 "/usr/local/include"],
+
+"_LINKFLAGS": [ "-rdynamic",
+				"-L/opt/hypertable/current/lib",
+				"-lHyperThrift",
+				"-lHyperCommon",
+				"-lHypertable",
+				"-lthrift",
+				"-levent",
+				"-llog4cpp",
+				"-lHyperSpace",
+				"-lpcrecpp",
+				"-lboost_system-mt",
+				"-lboost_regex-mt"]
+}
