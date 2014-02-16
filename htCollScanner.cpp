@@ -42,9 +42,10 @@ void htCollScanner::loadMore(htConnPool::htSession &sess)
 	
 	size_t read_cell_attempts = 0;
 	bool read_cell_ok = false;
-	while (!read_cell_ok && read_cell_attempts < 10)
-	{
-	
+	bool read_any_cell = false;
+	while ( !read_cell_ok && ( read_any_cell || read_cell_attempts < 100 ) ) //!read_cell_ok && read_any_cell)
+	{	
+		read_any_cell = false;
 		bool gotcells = false;
 		size_t attempts = 0;
 
@@ -73,6 +74,9 @@ void htCollScanner::loadMore(htConnPool::htSession &sess)
 		{
 			return;
 		}
+		
+		read_any_cell = true;
+		read_cell_attempts++;
 
 		// filter required cells
 		for (int i = 0; i<cells.size(); i++)
@@ -82,7 +86,7 @@ void htCollScanner::loadMore(htConnPool::htSession &sess)
 				read_cell_ok = true;
 		}
 		cells.clear();
-		read_cell_attempts++;
+		
 	}
 }
 
@@ -92,7 +96,7 @@ KeyValue htCollScanner::getNextCell() throw (ExScannerError)
 	{
 		KeyValue kv = buffer.front();
 		buffer.pop();
-		if (buffer.size() == 0)
+		if (buffer.size() < 10)
 		{
 			htConnPool::htSession sess = m_conn_pool->get();
 			loadMore(sess);
