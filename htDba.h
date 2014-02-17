@@ -68,20 +68,17 @@ public:
 	{
 	}
 	
-	bool ok() const
-	{
+	bool ok() const {
 		if (beg <= end)
 			return true;
 		return false;
 	}
 	
-	static KeyRange getEmptyRange()
-	{
+	static KeyRange getEmptyRange() {
 		return KeyRange("b", "a");
 	}
 	
-	std::string toString() const
-	{
+	std::string toString() const {
 		return "{ "+beg+", "+ end+" }";
 	}
 };
