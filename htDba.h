@@ -19,7 +19,7 @@
 #include "ThriftBroker/SerializedCellsReader.h"
 
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 typedef Hypertable::Thrift::Client ThriftClient;
 typedef boost::shared_ptr<ThriftClient> ThriftClientPtr;
@@ -87,7 +87,7 @@ class htLine
 {
 public:
 	std::string key;
-	std::tr1::unordered_map<std::string, std::string> cells;
+	std::unordered_map<std::string, std::string> cells;
 };
 
 #endif	/* HTDBA_H */
