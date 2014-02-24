@@ -8,6 +8,8 @@
 #ifndef HTDBA_H
 #define	HTDBA_H
 
+#include "hiconfig.h"
+
 #include "Common/Compat.h"
 #include "Common/System.h"
 
@@ -19,7 +21,7 @@
 #include "ThriftBroker/SerializedCellsReader.h"
 
 #include <string>
-#include <unordered_map>
+#include "hiaux/structs/hashtable.h"
 
 typedef Hypertable::Thrift::Client ThriftClient;
 typedef boost::shared_ptr<ThriftClient> ThriftClientPtr;
@@ -87,7 +89,7 @@ class htLine
 {
 public:
 	std::string key;
-	std::unordered_map<std::string, std::string> cells;
+	hiaux::hashtable<std::string, std::string> cells;
 };
 
 #endif	/* HTDBA_H */
