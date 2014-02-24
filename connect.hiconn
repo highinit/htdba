@@ -11,15 +11,13 @@
 			 "/usr/local/include"],
 
 "_LINKFLAGS": [ "-rdynamic",
-				"-L/opt/hypertable/current/lib",
+				"-L/opt/hypertable/current/lib/",
 				"-lHyperThrift",
 				"-lHyperCommon",
 				"-lHypertable",
 				"-lthrift",
 				"-levent",
-				"-llog4cpp",
-				"-lHyperSpace",
-				"-lpcrecpp",
+				"-lHyperspace",
 				"-lboost_system-mt",
 				"-lboost_regex-mt"]
 }

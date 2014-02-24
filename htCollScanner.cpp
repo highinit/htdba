@@ -1,5 +1,6 @@
 #include <queue>
 
+#include "Common/Compat.h"
 #include "htCollScanner.h"
 #include "htConnPool.h"
 
